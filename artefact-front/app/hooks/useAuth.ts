@@ -16,30 +16,49 @@ interface RegisterCredentials {
   lastName: string;
 }
 
-interface LoginResponse {
-  access_token: string;
-}
 
 export function useAuth() {
   const router = useRouter();
   const queryClient = useQueryClient();
 
+  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
+    const response = await fetch(url, {
+      ...options,
+      credentials: 'include',
+      headers: {
+        ...options.headers,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (response.status === 401) {
+      console.log('Session expirée ou non authentifié');
+      router.push('/auth');
+      throw new Error('Session expirée');
+    }
+
+    return response;
+  };
+
   const login = useMutation({
     mutationFn: async (credentials: LoginCredentials) => {
+      console.log('Tentative de connexion...');
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(credentials),
         credentials: 'include',
+        body: JSON.stringify(credentials),
       });
 
       if (!response.ok) {
+        console.error('Erreur de connexion:', response.status);
         throw new Error('Échec de la connexion');
       }
 
-      const data: LoginResponse = await response.json();
+      const data = await response.json();
+      console.log('Connexion réussie');
       return data;
     },
     onSuccess: () => {
@@ -59,19 +78,20 @@ export function useAuth() {
         headers: {
           'Content-Type': 'application/json',
         },
+        credentials: 'include',
         body: JSON.stringify({
           email: credentials.email,
           password: credentials.password,
           name: `${credentials.firstName} ${credentials.lastName}`,
         }),
-        credentials: 'include',
       });
 
       if (!response.ok) {
+        console.error('Erreur d\'inscription:', response.status);
         throw new Error('Échec de l\'inscription');
       }
 
-      const data: LoginResponse = await response.json();
+      const data = await response.json();
       return data;
     },
     onSuccess: () => {
@@ -92,16 +112,23 @@ export function useAuth() {
   const { data: user, isLoading: isLoadingUser } = useQuery({
     queryKey: ['user'],
     queryFn: async () => {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
-        credentials: 'include',
-      });
+      try {
+        const response = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`);
+        if (!response.ok) {
+          if (response.status === 401) {
+            console.log('Non authentifié');
+            return null;
+          }
+          throw new Error('Échec de la récupération du profil');
+        }
 
-      if (!response.ok) {
-        if (response.status === 401) return null;
-        throw new Error('Échec de la récupération du profil');
+        const userData = await response.json();
+        console.log('Profil utilisateur récupéré', userData);
+        return userData;
+      } catch (error) {
+        console.error('Erreur lors de la récupération du profil:', error);
+        return null;
       }
-
-      return response.json();
     },
   });
 
@@ -112,5 +139,6 @@ export function useAuth() {
     register,
     logout,
     isAuthenticated: !!user,
+    fetchWithAuth,
   };
 } 

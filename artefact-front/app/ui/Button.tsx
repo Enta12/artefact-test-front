@@ -37,6 +37,7 @@ export default function Button({
         variantStyles[variant],
         fullWidth ? 'w-full' : '',
         isDisabled && 'opacity-50 cursor-not-allowed',
+        'cursor-pointer',
         className
       )}
       disabled={isDisabled}
