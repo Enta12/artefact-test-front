@@ -1,0 +1,100 @@
+'use client';
+import cn from 'classnames';
+
+import { ReactNode } from 'react';
+
+export interface TabItem {
+  id: string;
+  label: string;
+  icon?: React.ComponentType<{ className?: string }>;
+  content: ReactNode;
+}
+
+interface TabsProps {
+  tabs: TabItem[];
+  activeTab: string;
+  onTabChange: (tabId: string) => void;
+  className?: string;
+  navClassName?: string;
+  contentClassName?: string;
+  variant?: 'primary' | 'secondary';
+}
+
+const Tabs = ({ 
+  tabs, 
+  activeTab, 
+  onTabChange, 
+  className = '',
+  navClassName = '',
+  contentClassName = '',
+  variant = 'primary',
+}: TabsProps) => {
+  return (
+    <div className={className}>
+      <div className={cn(navClassName, {
+        'border-b border-gray-200': variant === 'primary'
+      })}>
+        <nav className={cn("flex", {
+          'gap-8': variant === 'primary',
+          'gap-4': variant === 'secondary'
+        })}>
+          {tabs.map((tab) => {
+            const Icon = tab.icon;
+            const isActive = activeTab === tab.id;
+            if (variant === 'secondary') {
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => onTabChange(tab.id)}
+                  className={cn(
+                    'cursor-pointer py-2 px-6 rounded-full font-semibold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300',
+                    {
+                      'bg-blue-600 text-white shadow-md': isActive,
+                      'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700': !isActive,
+                    }
+                  )}
+                  type="button"
+                >
+                  <div className="flex items-center gap-2">
+                    {Icon && <Icon className="w-4 h-4" />}
+                    {tab.label}
+                  </div>
+                </button>
+              );
+            }
+            return (
+              <button
+                key={tab.id}
+                onClick={() => onTabChange(tab.id)}
+                className={cn(
+                  'flex items-center gap-2 py-3 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer',
+                  {
+                    'border-blue-500 text-blue-600': isActive,
+                    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': !isActive,
+                  }
+                )}
+                type="button"
+              >
+                  {Icon && <Icon className="w-4 h-4" />}
+                  {tab.label}
+              </button>
+            );
+          })}
+        </nav>
+      </div>
+
+      {/* Contenu des onglets */}
+      <div className={cn('mt-6', contentClassName)}>
+        {tabs.map((tab) => (
+          activeTab === tab.id && (
+            <div key={tab.id}>
+              {tab.content}
+            </div>
+          )
+        ))}
+      </div>
+    </div>
+  );
+};
+
+export default Tabs; 
