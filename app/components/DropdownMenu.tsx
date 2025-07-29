@@ -2,7 +2,7 @@
 
 import { useState, ReactNode } from 'react';
 import { BsThreeDotsVertical } from 'react-icons/bs';
-import { twMerge } from 'tailwind-merge';
+import cn from 'classnames';
 
 export interface DropdownAction {
   label: string;
@@ -26,7 +26,7 @@ const DropdownMenu = ({
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <div className={twMerge("relative", className)}>
+    <div className={cn("relative", className)}>
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="p-1 hover:bg-gray-100 rounded-full cursor-pointer"
@@ -37,15 +37,17 @@ const DropdownMenu = ({
       {isOpen && (
         <div 
           className={
-            "absolute mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1 text-sm " +
-            (align === 'right' ? "right-0" : "left-0")
+            cn(
+              "absolute mt-2 w-48 bg-white rounded-md shadow-lg z-20 py-1 text-sm",
+              align === 'right' ? "right-0" : "left-0"
+            )
           }
           onMouseLeave={() => setIsOpen(false)}
         >
           {actions.map((action, index) => (
             <button
               key={index}
-              className={twMerge(
+              className={cn(
                 "w-full text-left px-4 py-2 hover:bg-gray-100 cursor-pointer",
                 action.variant === 'danger' && "text-red-600"
               )}

@@ -1,6 +1,5 @@
 'use client';
 
-import { FC } from 'react';
 import Link from 'next/link';
 
 interface Project {
@@ -13,7 +12,7 @@ interface ProjectCardProps {
   project: Project;
 }
 
-const ProjectCard: FC<ProjectCardProps> = ({ project }) => {
+const ProjectCard = ({ project }: ProjectCardProps) => {
   return (
     <Link
       href={`/projects/${project.id}`}

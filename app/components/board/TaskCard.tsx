@@ -272,10 +272,10 @@ const TaskCard = ({ task, isDragging = false }: TaskCardProps) => {
             <div className="flex items-center gap-2">
               <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center">
                 <span className="text-xs font-medium text-blue-700">
-                  {task.assignedTo.name.charAt(0).toUpperCase()}
+                  {task.assignedTo.name?.charAt(0).toUpperCase()}
                 </span>
               </div>
-              <span className="font-medium text-gray-700">{task.assignedTo.name}</span>
+              <span className="font-medium text-gray-700">{task.assignedTo.name}</span> 
             </div>
           ) : (
             <div className="flex items-center gap-2">

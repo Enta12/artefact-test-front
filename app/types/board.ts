@@ -12,7 +12,7 @@ export type MinimalTag = Pick<Tag, 'id' | 'name' | 'color'>;
 
 export interface User {
   id: number;
-  name: string;
+  name?: string;
   email: string;
 }
 
@@ -42,4 +42,11 @@ export interface Column {
   position: number;
   projectId: number;
   tasks: Task[];
+}
+
+export interface Member {
+  id: number;
+  role: string;
+  projectId: number;
+  user: User;
 } 

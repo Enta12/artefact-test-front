@@ -1,41 +1,46 @@
-'use client';
+import { cookies } from 'next/headers';
+import ProjectPageClient, { Project } from './ProjectPageClient';
+import { Column } from '@/app/components/board/Board';
+import { Member, Tag } from '@/app/types/board';
 
-import Board from '@/app/components/board/Board';
-import { useParams } from 'next/navigation';
-import AppLayout from '@/app/components/AppLayout';
-import Tabs from '@/app/components/Tabs';
-import { FiUser } from 'react-icons/fi';
-import { useState } from 'react';
-import ProjectMembers from '@/app/components/board/ProjectMembers';
 
-export default function ProjectPage() {
-  const params = useParams();
-  const projectId = parseInt(params.id as string);
-  const [activeTab, setActiveTab] = useState<'board' | 'members'>('board');
+export default async function ProjectPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id: projectId } = await params;
+  const cookieStore = await cookies();
+  const token = cookieStore.get('token')?.value;
+
+  if (!token) {
+    return null;
+  }
+
+  async function fetchWithAuth(url: string) {
+    const res = await fetch(url, {
+      headers: { Cookie: `token=${token}` },
+      cache: 'no-store',
+    });
+    if (!res.ok) throw new Error('Erreur API');
+    return res.json();
+  }
+
+  const [project, columns, members, tags] = await Promise.all([
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`),
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/columns/project/${projectId}`),
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/members`),
+    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/tags/project/${projectId}`),
+  ]);
+
+  console.log(members);
 
   return (
-    <AppLayout title="Tableau de bord" className='flex-1 overflow-x-auto overflow-y-hidden min-w-screen w-fit overflow-scroll'>
-      <Tabs
-        navClassName="mx-4"
-        variant="secondary"
-        tabs={[
-          {
-            id: 'board',
-            label: 'Board',
-            content: <Board projectId={projectId} />,
-          },
-          {
-            id: 'members',
-            label: 'Membres',
-            icon: FiUser,
-            content: (
-              <ProjectMembers projectId={projectId} />
-            ),
-          },
-        ]}
-        activeTab={activeTab}
-        onTabChange={(tabId) => setActiveTab(tabId as 'board' | 'members')}
-      />
-    </AppLayout>
+    <ProjectPageClient
+      project={project as Project}
+      columns={columns as Column[]}
+      members={members as Member[]}
+      tags={tags as Tag[]}
+    />
   );
 } 

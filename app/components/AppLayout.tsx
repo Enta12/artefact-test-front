@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { useAuth } from "../hooks/useAuth";
 import Button from "./Button";
-import { twMerge } from "tailwind-merge";
+import cn from 'classnames';
 import Logo from "./Logo";
 
 interface AppLayoutProps {
@@ -14,7 +14,7 @@ export default function AppLayout({ title, children, className }: AppLayoutProps
   const { logout, user } = useAuth();
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-8 min-h-screen">
       <div className="fixed top-0 left-0 right-0 z-10 flex justify-between items-center mb-6 bg-gray-100 p-4 shadow-sm">
         <Logo />
         <h1 className="text-2xl font-bold">{title}</h1>
@@ -27,7 +27,7 @@ export default function AppLayout({ title, children, className }: AppLayoutProps
             </Button>
         </div>
       </div>
-      <div className={twMerge("p-4 mt-20", className)}>
+      <div className={cn("p-4 mt-20", className)}>
         {children}
       </div>
     </div>

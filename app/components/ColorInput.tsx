@@ -5,7 +5,7 @@ interface ColorInputProps {
   onChange: (value: string) => void;
 }
 
-const ColorInput: React.FC<ColorInputProps> = ({ value, onChange }) => (
+const ColorInput = ({ value, onChange }: ColorInputProps) => (
   <div className="flex items-center gap-2">
     <input
       aria-label="Couleur de la colonne"

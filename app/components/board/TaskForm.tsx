@@ -19,9 +19,10 @@ import {
   FiX,
   FiEdit3
 } from 'react-icons/fi';
-import { Task, User, Tag } from '../../types/board';
+import { Task, Tag } from '../../types/board';
 import { TaskFormData, TaskType, TaskPriority } from '../../types/task';
 import AdvancedSelect from '../CreatableSelect';
+import { useBoardActions } from '@/app/hooks/useBoardActions';
 
 interface TaskFormProps {
   initialData?: Task;
@@ -30,9 +31,6 @@ interface TaskFormProps {
   onCancel: () => void;
   submitLabel?: string;
   isSubmitting?: boolean;
-  users: User[];
-  tags: Tag[];
-  onCreateTag?: (name: string, color: string) => Promise<void>;
 }
 
 const priorityOptions = [
@@ -57,10 +55,10 @@ const TaskForm = ({
   onCancel,
   submitLabel = "Enregistrer",
   isSubmitting = false,
-  users,
-  tags,
-  onCreateTag
 }: TaskFormProps) => {
+
+  const { tags, members, addTag } = useBoardActions();
+
   const [formData, setFormData] = useState<TaskFormData>({
     title: initialData?.title || '',
     description: initialData?.description || '',
@@ -83,13 +81,22 @@ const TaskForm = ({
     if (formData.title.trim()) {
       onSubmit(formData);
     }
+    setFormData({
+      title: '',
+      description: '',
+      type: 'TASK',
+      priority: 'MEDIUM',
+      startDate: null,
+      endDate: null,
+      dueDate: null,
+      selectedTags: [],
+      assignedToId: undefined
+    });
   };
 
   const handleCreateTag = async (inputValue: string) => {
-    if (onCreateTag) {
-      const color = generateAccessibleColor();
-      await onCreateTag(inputValue, color);
-    }
+    const color = generateAccessibleColor();
+    await addTag({ name: inputValue, color });
   };
 
   const selectedType = typeOptions.find(option => option.value === formData.type);
@@ -351,9 +358,9 @@ const TaskForm = ({
                      transition-all duration-200 bg-white shadow-sm font-medium"
           >
             <option value="">Non assigné</option>
-            {users.map((user) => (
-              <option key={user.id} value={user.id}>
-                {user.name}
+            {members.map((member) => (
+              <option key={member.user.id} value={member.user.id}>
+                {member.user.name}
               </option>
             ))}
           </select>

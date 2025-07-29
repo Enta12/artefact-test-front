@@ -11,12 +11,12 @@ import ColorInput from '@/app/components/ColorInput';
 interface ColumnFormProps {
   projectId: number;
   onClose: () => void;
-  column?: Column; // Si présent, on est en mode édition
+  column?: Column;
 }
 
 const ColumnForm = ({ projectId, onClose, column }: ColumnFormProps) => {
   const [name, setName] = useState(column?.name ?? '');
-  const [color, setColor] = useState(column?.color ?? '#E2E8F0');
+  const [color, setColor] = useState(column?.color ?? '#0A0A0A');
   const queryClient = useQueryClient();
 
   useEffect(() => {

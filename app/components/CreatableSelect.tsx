@@ -3,7 +3,6 @@
 
 import CreatableSelect from 'react-select/creatable';
 import { Props as SelectProps, GroupBase } from 'react-select';
-import { twMerge } from 'tailwind-merge';
 
 export interface AdvancedSelectOption<T> {
   value: T;
@@ -40,7 +39,7 @@ const AdvancedSelect = <T,>({
       onCreateOption={onCreateOption}
       formatOptionLabel={formatOptionLabel}
       placeholder={placeholder}
-      className={twMerge(className)}
+      className={className}
       classNames={{
         control: (state) => 
           `!border-purple-200 !rounded-xl !min-h-[48px] !shadow-sm hover:!border-purple-300 

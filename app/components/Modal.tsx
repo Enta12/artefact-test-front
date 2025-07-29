@@ -1,6 +1,7 @@
 'use client';
 
 import { forwardRef, useImperativeHandle, useState, ReactNode } from 'react';
+import cn from 'classnames';
 
 export interface ModalRef {
   close: () => void;
@@ -38,19 +39,19 @@ const Modal = forwardRef<ModalRef, ModalProps>(({
 
   return (
     <div 
-      className={
-        'fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300 p-4 ' +
-        (isOpen ? 'opacity-100 pointer-events-auto ' : 'opacity-0 pointer-events-none ')
-      }
+      className={cn(
+        'fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50 transition-all duration-300 p-4',
+        isOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
+      )}
       onClick={(e) => e.target === e.currentTarget && handleClose()}
     >
       <div 
-        className={
-          'bg-white/90 backdrop-blur-md rounded-lg shadow-xl transition-all duration-300 transform ' +
-          'max-h-[90vh] w-full max-w-md overflow-hidden flex flex-col ' +
-          (isOpen ? 'translate-y-0 opacity-100 ' : 'translate-y-full opacity-0 ') +
+        className={cn(
+          'bg-white/90 backdrop-blur-md rounded-lg shadow-xl transition-all duration-300 transform',
+          'max-h-[90vh] w-full max-w-md overflow-hidden flex flex-col',
+          isOpen ? 'translate-y-0 opacity-100' : 'translate-y-full opacity-0',
           className
-        }
+        )}
       >
         {title && (
           <div className="text-xl font-semibold p-6 pb-4">{title}</div>

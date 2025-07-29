@@ -1,12 +1,11 @@
 'use client';
 
-import { FC } from 'react';
 
 interface CreateProjectCardProps {
   onCreateClick: () => void;
 }
 
-const CreateProjectCard: FC<CreateProjectCardProps> = ({ onCreateClick }) => {
+const CreateProjectCard = ({ onCreateClick }: CreateProjectCardProps) => {
   return (
     <div 
       className="bg-white p-6 rounded-lg shadow-md border-2 border-dashed border-gray-300 hover:border-indigo-500 

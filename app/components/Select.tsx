@@ -1,6 +1,7 @@
 'use client';
 
 import SelectBase, { Props as SelectPropsBase, GroupBase } from 'react-select';
+import cn from 'classnames';
 
 export interface SelectOption {
   value: string | number | undefined;
@@ -30,14 +31,22 @@ const Select = ({ items, value, onChange, placeholder = "Sélectionner...", clas
       isClearable
       className={className}
       classNames={{
-        control: (state) => 
-          `!border-purple-200 !rounded-xl !min-h-[40px] !shadow-sm hover:!border-purple-300 
-           ${state.isFocused ? '!border-purple-500 !ring-2 !ring-purple-500' : ''}`,
-        menu: () => '!rounded-xl !overflow-hidden !shadow-lg !border !border-purple-100',
-        option: (state) => 
-          `!px-4 !py-3 ${state.isFocused ? '!bg-purple-50' : '!bg-white'} 
-           ${state.isSelected ? '!bg-purple-100' : ''}
-           hover:!bg-purple-50 transition-colors duration-150`,
+        control: (state) => cn(
+          '!border-purple-200 !rounded-xl !min-h-[40px] !shadow-sm hover:!border-purple-300',
+          {
+            '!border-purple-500 !ring-2 !ring-purple-500': state.isFocused,
+          }
+        ),
+        menu: () => cn('!rounded-xl !overflow-hidden !shadow-lg !border !border-purple-100'),
+        option: (state) => cn(
+          '!px-4 !py-3',
+          {
+            '!bg-purple-50': state.isFocused,
+            '!bg-white': !state.isFocused,
+            '!bg-purple-100 !text-purple-800': state.isSelected,
+            'hover:!bg-purple-50 transition-colors duration-150': !state.isSelected
+          }
+        ),
         singleValue: () => '!text-purple-800 !font-medium',
       }}
       noOptionsMessage={() => 'Aucune option'}

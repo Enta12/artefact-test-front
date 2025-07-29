@@ -1,11 +1,11 @@
 import { useState, useRef, forwardRef } from 'react';
 import { TaskPriority, TaskType } from '@/app/types/task';
-import { Tag } from '@/app/types/board';
 import Button from '../Button';
 import Select from '../Select';
 import { useOutsideClick } from '@/app/hooks/useOutsideClick';
 import { FiFilter, FiAlertCircle, FiRotateCw } from 'react-icons/fi';
 import cn from 'classnames';
+import { useBoard } from '@/context/BoardContext';
 
 interface FilterButtonProps {
   label: string;
@@ -29,7 +29,6 @@ const FilterButton = ({ label, isSelected, onClick, color }: FilterButtonProps) 
   </button>
 );
 
-// Composant pour les filtres de dates spéciaux
 interface DateFilterButtonProps {
   label: string;
   isSelected: boolean;
@@ -65,20 +64,19 @@ export interface BoardFilters {
     start: Date | null;
     end: Date | null;
   };
-  // Filtres de dates spéciaux
   showOverdue?: boolean;
   showInProgress?: boolean;
 }
 
 interface BoardFiltersProps {
-  users: Array<{ id: number; name: string }>;
-  tags: Tag[];
+
   filters: BoardFilters;
   onFiltersChange: (filters: BoardFilters) => void;
 }
 
-const BoardFilters = ({ users, tags, filters, onFiltersChange }: BoardFiltersProps) => {
+const BoardFilters = ({ filters, onFiltersChange }: BoardFiltersProps) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { tags, members } = useBoard();
   const buttonRef = useRef<HTMLButtonElement>(null);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
@@ -233,7 +231,7 @@ const BoardFilters = ({ users, tags, filters, onFiltersChange }: BoardFiltersPro
               <Select
                 items={[
                   { id: undefined, label: 'Tous' },
-                  ...users.map(user => ({ id: user.id, label: user.name }))
+                  ...members.map(member => ({ id: member.user.id, label: member.user.name || 'Utilisateur sans nom' }))
                 ]}
                 value={filters.assignedToId}
                 onChange={(value) => onFiltersChange({ ...filters, assignedToId: value === undefined ? undefined : typeof value === 'string' ? Number(value) : value })}

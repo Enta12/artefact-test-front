@@ -1,13 +1,12 @@
 'use client';
 
-import { useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuthMutation } from '../../hooks/useAuthQuery';
+import { useRef, useState } from 'react';
 import Modal, { ModalRef } from '../Modal';
 import TaskForm from './TaskForm';
 import { FiPlus } from 'react-icons/fi';
 import { Column, User, Tag } from '../../types/board';
-import { TaskFormData } from '../../types/task';
+import { TaskFormData } from '@/app/types/task';
+import { useBoardActions } from '@/app/hooks/useBoardActions';
 
 interface AddTaskProps {
   columnId: number;
@@ -17,56 +16,16 @@ interface AddTaskProps {
   users: User[];
 }
 
-const AddTask = ({ columnId, projectId, columns, tags, users }: AddTaskProps) => {
+const AddTask = ({ columnId, projectId }: AddTaskProps) => {
   const modalRef = useRef<ModalRef>(null);
-  const queryClient = useQueryClient();
-
-  const createTag = useAuthMutation<Tag, Error, { name: string; color: string; projectId: number }>(
-    (data) => ({
-      url: `${process.env.NEXT_PUBLIC_API_URL}/tags`,
-      method: 'POST',
-      data,
-    }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['tags', projectId] });
-      },
-    }
-  );
-
-  const addTask = useAuthMutation(
-    (data: TaskFormData) => ({
-      url: `${process.env.NEXT_PUBLIC_API_URL}/tasks`,
-      method: 'POST',
-      data: {
-        title: data.title,
-        description: data.description,
-        type: data.type,
-        priority: data.priority,
-        columnId,
-        projectId,
-        position: Math.max(...columns.find(col => col.id === columnId)?.tasks.map(task => task.position) || [-1]) + 1,
-        tagIds: data.selectedTags.map(tag => tag.id),
-        userId: data.assignedToId,
-        startDate: data.startDate?.toISOString(),
-        endDate: data.endDate?.toISOString(),
-        dueDate: data.dueDate?.toISOString(),
-      },
-    }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['columns', projectId] });
-        modalRef.current?.close();
-      },
-    }
-  );
-
-  const handleCreateTag = async (name: string, color: string) => {
-    await createTag.mutateAsync({
-      name,
-      color,
-      projectId
-    });
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const { addTask } = useBoardActions();
+  const handleSubmit = async (data: TaskFormData) => {
+    //TODO: use isPending of addTaskMutation
+    setIsSubmitting(true);
+    await addTask(columnId, data);
+    setIsSubmitting(false);
+    modalRef.current?.close();
   };
 
   return (
@@ -88,17 +47,14 @@ const AddTask = ({ columnId, projectId, columns, tags, users }: AddTaskProps) =>
       <Modal
         ref={modalRef}
         title="Nouvelle tâche"
-        className="max-w-2xl"
+        className="max-w-2xl!"
       >
         <TaskForm
           projectId={projectId}
-          onSubmit={addTask.mutate}
+          onSubmit={handleSubmit}
           onCancel={() => modalRef.current?.close()}
           submitLabel="Créer la tâche"
-          isSubmitting={addTask.isPending}
-          users={users}
-          tags={tags}
-          onCreateTag={handleCreateTag}
+          isSubmitting={isSubmitting}
         />
       </Modal>
     </>

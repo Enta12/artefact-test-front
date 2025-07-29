@@ -5,20 +5,50 @@ import Button from './Button';
 import Input from './Input';
 import TextArea from './TextArea';
 import Modal, { ModalRef } from './Modal';
+import { useQueryClient } from '@tanstack/react-query';
+import { useAuthMutation } from '@/app/hooks/useAuthQuery';
 
 export type CreateProjectModalRef = ModalRef;
 
 interface CreateProjectModalProps {
-  onSubmit: (data: { name: string; description: string }) => void;
-  isLoading?: boolean;
+  onCreate: (
+    project: {
+      id: string;
+      name: string;
+      description: string;
+    }
+  ) => void;
 }
 
-const CreateProjectModal = forwardRef<CreateProjectModalRef, CreateProjectModalProps>(({
-  onSubmit,
-  isLoading
-}, ref) => {
+const CreateProjectModal = forwardRef<CreateProjectModalRef, CreateProjectModalProps>(({ onCreate: handleCreate }, ref) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
+  const queryClient = useQueryClient();
+
+  const createProject = useAuthMutation<
+    { id: string; name: string; description: string },
+    Error,
+    { name: string; description: string }
+  >(
+    (data) => ({
+      url: `${process.env.NEXT_PUBLIC_API_URL}/projects`,
+      method: 'POST',
+      data,
+    }),
+    {
+      onSuccess: (data) => {
+        queryClient.invalidateQueries({ queryKey: ['projects'] });
+        if (typeof ref !== 'function' && ref?.current) {
+          ref.current?.close();
+        }
+        handleCreate(data);
+      },
+    }
+  );
+
+  const handleSubmit = (data: { name: string; description: string }) => {
+    createProject.mutate(data);
+  };
 
   const handleClose = () => {
     if (typeof ref !== 'function' && ref?.current) {
@@ -37,7 +67,7 @@ const CreateProjectModal = forwardRef<CreateProjectModalRef, CreateProjectModalP
     >
       <form onSubmit={(e) => {
         e.preventDefault();
-        onSubmit({ name, description });
+        handleSubmit({ name, description });
       }}>
         <div className="space-y-4">
           <div>
@@ -73,7 +103,7 @@ const CreateProjectModal = forwardRef<CreateProjectModalRef, CreateProjectModalP
             </Button>
             <Button
               type="submit"
-              isLoading={isLoading}
+              isLoading={createProject.isPending}
               loadingText="Création en cours..."
             >
               Créer le projet

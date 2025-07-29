@@ -1,7 +1,6 @@
 'use client';
 
 import { forwardRef, useEffect, useCallback } from 'react';
-import { twMerge } from 'tailwind-merge';
 import Modal, { ModalRef } from './Modal';
 import Button from './Button';
 import { 
@@ -9,6 +8,7 @@ import {
   BsExclamationCircle,
   BsInfoCircle
 } from 'react-icons/bs';
+import cn from 'classnames';
 
 interface ConfirmModalProps {
   title: string;
@@ -78,17 +78,17 @@ const ConfirmModal = forwardRef<ModalRef, ConfirmModalProps>(({
       className="max-w-lg"
     >
       <div className="space-y-6">
-        <div className={twMerge(
+        <div className={cn(
           "flex items-start gap-4 p-4 rounded-lg",
           bgClass
         )}>
           <div className="flex-shrink-0">
-            <Icon className={twMerge("w-6 h-6", iconClass)} />
+            <Icon className={cn("w-6 h-6", iconClass)} />
           </div>
           <div className="flex-1 space-y-2">
             <p className="text-gray-700">{description}</p>
             {itemLabel && (
-              <p className={twMerge(
+              <p className={cn(
                 "font-semibold text-lg",
                 textClass
               )}>{itemLabel}</p>

@@ -18,7 +18,7 @@ interface RegisterData {
 type FormErrors = Partial<Record<keyof RegisterData, string>>;
 
 export default function RegisterForm() {
-  const { register } = useAuth();
+  const { register } = useAuth({enabled: false});
   const [formData, setFormData] = useState<RegisterData>({
     email: '',
     password: '',

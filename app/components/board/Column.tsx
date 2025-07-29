@@ -3,11 +3,11 @@
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import { twMerge } from 'tailwind-merge';
 import type { Column as ColumnType, Task, Tag, User } from '../../types/board';
 import TaskCard from './TaskCard';
 import AddTask from './AddTask';
 import ColumnMenu from './ColumnMenu';
+import cn from 'classnames';
 
 interface ColumnProps {
   column: ColumnType;
@@ -53,15 +53,18 @@ const Column = ({ column, tasks, columns, tags, users }: ColumnProps) => {
     <div
       ref={setSortableNodeRef}
       style={style}
-      className={twMerge(
+      className={cn(
         'flex flex-col w-96 gap-2',
-        isDragging ? 'opacity-50' : 'opacity-100'
+        {
+          'opacity-50': isDragging,
+          'opacity-100': !isDragging
+        }
       )}
     >
       <div
         {...attributes}
         {...listeners}
-        className={twMerge(
+        className={cn(
           'px-2 font-semibold text-lg',
           'flex items-center gap-2',
           'rounded-t-lg'
@@ -73,7 +76,6 @@ const Column = ({ column, tasks, columns, tags, users }: ColumnProps) => {
               color: column.color || 'inherit'
             }}
           >{column.name}</span>
-          <span className="text-xs text-gray-500">(ID: {column.id})</span>
           <span className="text-sm text-gray-500">({sortedTasks.length})</span>
         </div>
         <ColumnMenu column={column} />

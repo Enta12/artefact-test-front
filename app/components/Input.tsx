@@ -1,5 +1,6 @@
 import { InputHTMLAttributes, useState } from 'react';
 import { FiEye, FiEyeOff } from 'react-icons/fi';
+import cn from 'classnames';
 
 interface InputProps extends InputHTMLAttributes<HTMLInputElement> {
   label: string;
@@ -19,10 +20,11 @@ export default function Input({ label, error, className = '', type, ...props }: 
         <input
           {...props}
           type={isPassword && showPassword ? 'text' : type}
-          className={"appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 z-0 sm:text-sm " +
-            (isPassword ? 'pr-10' : '') +
+          className={cn(
+            "appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-500 text-gray-900 rounded-md focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 z-0 sm:text-sm",
+            isPassword && 'pr-10',
             className
-          }
+          )}
         />
         {isPassword && (
           <button
