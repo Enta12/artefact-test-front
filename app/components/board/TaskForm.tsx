@@ -96,7 +96,14 @@ const TaskForm = ({
 
   const handleCreateTag = async (inputValue: string) => {
     const color = generateAccessibleColor();
-    await addTag({ name: inputValue, color });
+    const newTag = await addTag({ name: inputValue, color });
+    
+    setFormData({
+      ...formData,
+      selectedTags: [...formData.selectedTags, newTag]
+    });
+    
+    return newTag;
   };
 
   const selectedType = typeOptions.find(option => option.value === formData.type);
