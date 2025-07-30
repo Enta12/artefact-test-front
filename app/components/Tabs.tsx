@@ -41,42 +41,27 @@ const Tabs = ({
           {tabs.map((tab) => {
             const Icon = tab.icon;
             const isActive = activeTab === tab.id;
-            if (variant === 'secondary') {
-              return (
-                <button
-                  key={tab.id}
-                  onClick={() => onTabChange(tab.id)}
-                  className={cn(
-                    'cursor-pointer py-2 px-6 rounded-full font-semibold text-sm transition-colors focus:outline-none focus:ring-2 focus:ring-blue-300',
-                    {
-                      'bg-blue-600 text-white shadow-md': isActive,
-                      'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700': !isActive,
-                    }
-                  )}
-                  type="button"
-                >
-                  <div className="flex items-center gap-2">
-                    {Icon && <Icon className="w-4 h-4" />}
-                    {tab.label}
-                  </div>
-                </button>
-              );
-            }
+            
             return (
               <button
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className={cn(
-                  'flex items-center gap-2 py-3 px-1 border-b-2 font-medium text-sm transition-colors cursor-pointer',
+                  'flex items-center gap-2 font-medium text-sm transition-colors cursor-pointer',
                   {
-                    'border-blue-500 text-blue-600': isActive,
-                    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': !isActive,
+                    'py-3 px-1 border-b-2': variant === 'primary',
+                    'border-blue-500 text-blue-600': variant === 'primary' && isActive,
+                    'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300': variant === 'primary' && !isActive,
+                    
+                    'py-2 px-6 rounded-full font-semibold': variant === 'secondary',
+                    'bg-blue-600 text-white shadow-md': variant === 'secondary' && isActive,
+                    'bg-gray-100 text-gray-600 hover:bg-blue-100 hover:text-blue-700': variant === 'secondary' && !isActive,
                   }
                 )}
                 type="button"
               >
-                  {Icon && <Icon className="w-4 h-4" />}
-                  {tab.label}
+                {Icon && <Icon className="w-4 h-4" />}
+                {tab.label}
               </button>
             );
           })}

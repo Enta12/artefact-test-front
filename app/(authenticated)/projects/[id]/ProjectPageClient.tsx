@@ -34,7 +34,7 @@ export default function ProjectPageClient({
   return (
     <AppLayout
       title={project.name}
-      className="flex-1 overflow-x-auto overflow-y-hidden min-w-screen w-fit overflow-scroll"
+      className="flex-1 overflow-x-auto overflow-y-hidden min-w-screen w-fit overflow-scroll min-h-screen"
     >
       <BoardProvider
         initialTags={tags}

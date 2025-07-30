@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useImperativeHandle, useState, ReactNode } from 'react';
+import { forwardRef, useImperativeHandle, useState, ReactNode, useEffect } from 'react';
 import cn from 'classnames';
 
 export interface ModalRef {
@@ -22,6 +22,13 @@ const Modal = forwardRef<ModalRef, ModalProps>(({
   onAfterClose
 }, ref) => {
   const [isOpen, setIsOpen] = useState(false);
+
+  useEffect(() => {
+    document.body.style.overflow = isOpen ? 'hidden' : 'unset';
+    return () => {
+      document.body.style.overflow = 'unset';
+    };
+  }, [isOpen]);
 
   const handleClose = () => {
     setIsOpen(false);
