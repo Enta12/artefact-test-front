@@ -57,7 +57,6 @@ export function useAuth(options: {enabled?: boolean} = {enabled: true}) {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
       router.push('/dashboard');
     },
   });
@@ -89,7 +88,6 @@ export function useAuth(options: {enabled?: boolean} = {enabled: true}) {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user'] });
       router.push('/dashboard');
     },
   });

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { useQueryClient } from "@tanstack/react-query";
 import { Task } from "../../types/board";
 import { TaskFormData } from "../../types/task";
 import Modal, { ModalRef } from "../Modal";
@@ -82,7 +81,6 @@ const TaskDetailModal = ({ task, onClose }: TaskDetailModalProps) => {
   const deleteModalRef = useRef<ModalRef>(null);
   const [isEditing, setIsEditing] = useState(false);
   const [activeTab, setActiveTab] = useState("details");
-  const queryClient = useQueryClient();
 
   const { updateTask, removeTask } = useBoardActions();
 
@@ -427,15 +425,7 @@ const TaskDetailModal = ({ task, onClose }: TaskDetailModalProps) => {
         itemLabel={task.title}
         confirmLabel="Supprimer définitivement"
         variant="danger"
-        isLoading={false}
-        onConfirm={() => {
-          removeTask(task.columnId, task.id);
-          queryClient.invalidateQueries({
-            queryKey: ["columns", task.projectId],
-          });
-          onClose();
-        }}
-        onCancel={() => deleteModalRef.current?.close()}
+        onConfirm={async () => await removeTask(task.columnId, task.id)}
       />
     </>
   );

@@ -44,7 +44,7 @@ export default function AuthPage() {
         </div>
         <div className="max-lg:hidden bg-indigo-200 w-full rounded-lg max-w-lg flex items-center justify-center">
           <div className="relative w-full aspect-[199/152]">
-            <Image src="/auth.png" alt="logo" fill />
+            <Image src="/auth.svg" alt="logo" fill />
           </div>
         </div>
       </div>

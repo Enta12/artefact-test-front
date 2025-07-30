@@ -1,15 +1,13 @@
 'use client';
 
 import { useRef } from 'react';
-import Button from '../Button';
+import Button from '@/app/components/Button';
 import Modal, { ModalRef } from '../Modal';
 import ColumnForm from './ColumnForm';
 
-interface AddColumnProps {
-  projectId: number;
-}
 
-const AddColumn = ({ projectId }: AddColumnProps) => {
+
+const AddColumn = () => {
   const modalRef = useRef<ModalRef>(null);
 
   return (
@@ -23,7 +21,6 @@ const AddColumn = ({ projectId }: AddColumnProps) => {
         title="Ajouter une colonne"
       >
         <ColumnForm 
-          projectId={projectId}
           onClose={() => modalRef.current?.close()}
         />
       </Modal>

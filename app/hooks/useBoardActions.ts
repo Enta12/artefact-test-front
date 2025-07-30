@@ -3,7 +3,6 @@ import { useBoardContext } from "@/context/useBoardContext";
 import { useAuthMutation } from "./useAuthQuery";
 import { Task, Tag, Member, Column } from "@/app/types/board";
 import { TaskFormData } from "../types/task";
-import { useQueryClient } from "@tanstack/react-query";
 
 interface PendingMove {
   taskId: number;
@@ -21,7 +20,6 @@ interface PendingColumnMove {
 
 export const useBoardActions = () => {
   const board = useBoardContext();
-  const queryClient = useQueryClient();
   const pendingMovesRef = useRef<PendingMove[]>([]);
   const pendingColumnMovesRef = useRef<PendingColumnMove[]>([]);
   const columnSyncTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -118,10 +116,7 @@ export const useBoardActions = () => {
         pendingMovesRef.current = pendingMovesRef.current.filter(
           move => move.taskId !== variables.taskId || move.timestamp !== variables.timestamp
         );
-        
-        setTimeout(() => {
-          queryClient.invalidateQueries({ queryKey: ['columns', board.projectId] });
-        }, 1000);
+  
       }
     }
   );
@@ -233,15 +228,6 @@ export const useBoardActions = () => {
     {
       retry: 2,
       retryDelay: 1000,
-      onError: (error) => {
-        const isConstraintError = error.message?.includes('constraint') || error.message?.includes('P2002');
-        
-        if (!isConstraintError) {
-          setTimeout(() => {
-            queryClient.invalidateQueries({ queryKey: ['columns', board.projectId] });
-          }, 2000);
-        }
-      }
     }
   );
 
@@ -253,6 +239,16 @@ export const useBoardActions = () => {
     url: `${process.env.NEXT_PUBLIC_API_URL}/columns`,
     method: "POST",
     data: { name, color, position },
+  }));
+
+  const updateColumnMutation = useAuthMutation<
+    Column,
+    Error,
+    { columnId: number; name: string; color: string }
+  >(({ columnId, name, color }) => ({
+    url: `${process.env.NEXT_PUBLIC_API_URL}/columns/${columnId}`,
+    method: "PATCH",
+    data: { name, color },
   }));
 
   const deleteColumnMutation = useAuthMutation<
@@ -333,6 +329,15 @@ export const useBoardActions = () => {
       return res;
     },
     [board, createColumnMutation]
+  );
+
+  const updateColumn = useCallback(
+    async (columnId: number, name: string, color: string) => {
+      const res = await updateColumnMutation.mutateAsync({ columnId, name, color });
+      board.updateColumn(columnId, res);
+      return res;
+    },
+    [board, updateColumnMutation]
   );
 
   const deleteColumn = useCallback(
@@ -438,8 +443,10 @@ export const useBoardActions = () => {
     removeTask,
     updateTask,
     moveTask,
+
     moveColumn,
     createColumn,
+    updateColumn,
     deleteColumn,
 
     startDrag,

@@ -5,7 +5,6 @@ import Button from './Button';
 import Input from './Input';
 import TextArea from './TextArea';
 import Modal, { ModalRef } from './Modal';
-import { useQueryClient } from '@tanstack/react-query';
 import { useAuthMutation } from '@/app/hooks/useAuthQuery';
 
 export type CreateProjectModalRef = ModalRef;
@@ -23,7 +22,6 @@ interface CreateProjectModalProps {
 const CreateProjectModal = forwardRef<CreateProjectModalRef, CreateProjectModalProps>(({ onCreate: handleCreate }, ref) => {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
-  const queryClient = useQueryClient();
 
   const createProject = useAuthMutation<
     { id: string; name: string; description: string },
@@ -37,7 +35,6 @@ const CreateProjectModal = forwardRef<CreateProjectModalRef, CreateProjectModalP
     }),
     {
       onSuccess: (data) => {
-        queryClient.invalidateQueries({ queryKey: ['projects'] });
         if (typeof ref !== 'function' && ref?.current) {
           ref.current?.close();
         }

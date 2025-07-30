@@ -1,8 +1,7 @@
 'use client';
 
 import { useRef } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuthMutation } from '../../hooks/useAuthQuery';
+import { useBoardActions } from '../../hooks/useBoardActions';
 import type { Column } from '../../types/board';
 import Modal, { ModalRef } from '../Modal';
 import DropdownMenu from '../DropdownMenu';
@@ -16,20 +15,9 @@ interface ColumnMenuProps {
 const ColumnMenu = ({ column }: ColumnMenuProps) => {
   const editModalRef = useRef<ModalRef>(null);
   const deleteModalRef = useRef<ModalRef>(null);
-  const queryClient = useQueryClient();
+  const { deleteColumn } = useBoardActions();
 
-  const deleteColumn = useAuthMutation(
-    () => ({
-      url: `${process.env.NEXT_PUBLIC_API_URL}/columns/${column.id}`,
-      method: 'DELETE',
-    }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['columns', column.projectId] });
-        deleteModalRef.current?.close();
-      },
-    }
-  );
+  const handleDelete = async () => await deleteColumn(column.id);
 
   const actions = [
     {
@@ -52,7 +40,6 @@ const ColumnMenu = ({ column }: ColumnMenuProps) => {
         title="Modifier la colonne"
       >
         <ColumnForm 
-          projectId={column.projectId}
           column={column}
           onClose={() => editModalRef.current?.close()}
         />
@@ -65,9 +52,7 @@ const ColumnMenu = ({ column }: ColumnMenuProps) => {
         itemLabel={column.name}
         confirmLabel="Supprimer"
         variant="danger"
-        isLoading={deleteColumn.isPending}
-        onConfirm={() => deleteColumn.mutate()}
-        onCancel={() => deleteModalRef.current?.close()}
+        onConfirm={handleDelete}
       />
     </>
   );

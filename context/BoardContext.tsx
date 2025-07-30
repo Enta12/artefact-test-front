@@ -77,6 +77,7 @@ import {
     | { type: "SET_COLUMNS"; payload: Column[] }
     | { type: "MOVE_COLUMN"; payload: { fromIndex: number; toIndex: number } }
     | { type: "ADD_COLUMN"; payload: Column }
+    | { type: "UPDATE_COLUMN"; payload: { columnId: number; column: Column } }
     | { type: "REMOVE_COLUMN"; payload: number }
     | { type: "MOVE_TASK"; payload: { taskId: number; fromColumnId: number; toColumnId: number; toIndex: number } }
     | { type: "START_DRAG"; payload: { type: "column" | "task"; id: number; sourceIndex: number; sourceColumnId?: number } }
@@ -103,6 +104,13 @@ import {
       case "ADD_COLUMN": {
         const newColumn = action.payload;
         const updatedColumns = [...state.columns, newColumn];
+        return { ...state, columns: updatedColumns };
+      }
+      case "UPDATE_COLUMN": {
+        const { columnId, column } = action.payload;
+        const updatedColumns = state.columns.map((col) => 
+          col.id === columnId ? column : col
+        );
         return { ...state, columns: updatedColumns };
       }
       case "REMOVE_COLUMN": {
@@ -203,10 +211,14 @@ import {
       dispatch({ type: "MOVE_COLUMN", payload: { fromIndex, toIndex } });
     }, []);
   
-    const addColumn = useCallback((column: Column) => {
+        const addColumn = useCallback((column: Column) => {
       dispatch({ type: "ADD_COLUMN", payload: column });
     }, []);
-  
+
+    const updateColumn = useCallback((columnId: number, column: Column) => {
+      dispatch({ type: "UPDATE_COLUMN", payload: { columnId, column } });
+    }, []);
+
     const removeColumn = useCallback((columnId: number) => {
       dispatch({ type: "REMOVE_COLUMN", payload: columnId });
     }, []);
@@ -255,6 +267,7 @@ import {
       ...state,
       moveColumn,
       addColumn,
+      updateColumn,
       removeColumn,
       moveTask,
       startDrag,

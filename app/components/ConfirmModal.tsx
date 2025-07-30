@@ -1,6 +1,6 @@
 'use client';
 
-import { forwardRef, useEffect, useCallback } from 'react';
+import { forwardRef, useEffect, useCallback, useState, RefObject } from 'react';
 import Modal, { ModalRef } from './Modal';
 import Button from './Button';
 import { 
@@ -17,9 +17,7 @@ interface ConfirmModalProps {
   confirmLabel?: string;
   cancelLabel?: string;
   variant?: 'danger' | 'warning' | 'info';
-  isLoading?: boolean;
-  onConfirm: () => void;
-  onCancel?: () => void;
+  onConfirm: () => Promise<void>;
 }
 
 const ConfirmModal = forwardRef<ModalRef, ConfirmModalProps>(({
@@ -29,15 +27,25 @@ const ConfirmModal = forwardRef<ModalRef, ConfirmModalProps>(({
   confirmLabel = 'Confirmer',
   cancelLabel = 'Annuler',
   variant = 'danger',
-  isLoading = false,
   onConfirm,
-  onCancel
 }, ref) => {
+
+  const [isLoading, setIsLoading] = useState(false);
+  const handleConfirm = useCallback(async () => {
+    setIsLoading(true);
+    await onConfirm();
+    setIsLoading(false);
+  }, [onConfirm]);
+
+  const handleClose = () => {
+    (ref as RefObject<ModalRef>)?.current?.close();
+  };
+
   const handleKeyDown = useCallback((e: KeyboardEvent) => {
     if (e.key === 'Enter' && !isLoading) {
-      onConfirm();
+      handleConfirm();
     }
-  }, [onConfirm, isLoading]);
+  }, [handleConfirm, isLoading]);
 
   useEffect(() => {
     document.addEventListener('keydown', handleKeyDown);
@@ -74,7 +82,7 @@ const ConfirmModal = forwardRef<ModalRef, ConfirmModalProps>(({
     <Modal
       ref={ref}
       title={title}
-      onAfterClose={onCancel}
+      onAfterClose={handleClose}
       className="max-w-lg"
     >
       <div className="space-y-6">
@@ -99,7 +107,7 @@ const ConfirmModal = forwardRef<ModalRef, ConfirmModalProps>(({
         <div className="flex justify-end gap-3">
           <Button
             type="button"
-            onClick={onCancel}
+            onClick={handleClose}
             variant="secondary"
             className="min-w-[100px]"
             autoFocus
@@ -108,7 +116,7 @@ const ConfirmModal = forwardRef<ModalRef, ConfirmModalProps>(({
           </Button>
           <Button
             type="button"
-            onClick={onConfirm}
+            onClick={handleConfirm}
             disabled={isLoading}
             variant={buttonVariant}
             className="min-w-[100px]"

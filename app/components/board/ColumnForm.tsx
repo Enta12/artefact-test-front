@@ -1,23 +1,21 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useQueryClient } from '@tanstack/react-query';
-import { useAuthMutation } from '../../hooks/useAuthQuery';
+import { useBoardActions } from '../../hooks/useBoardActions';
 import Input from '../Input';
 import Button from '../Button';
 import type { Column } from '../../types/board';
 import ColorInput from '@/app/components/ColorInput';
 
 interface ColumnFormProps {
-  projectId: number;
   onClose: () => void;
   column?: Column;
 }
 
-const ColumnForm = ({ projectId, onClose, column }: ColumnFormProps) => {
+const ColumnForm = ({ onClose, column }: ColumnFormProps) => {
   const [name, setName] = useState(column?.name ?? '');
   const [color, setColor] = useState(column?.color ?? '#0A0A0A');
-  const queryClient = useQueryClient();
+  const { createColumn, updateColumn } = useBoardActions();
 
   useEffect(() => {
     if (column) {
@@ -26,36 +24,29 @@ const ColumnForm = ({ projectId, onClose, column }: ColumnFormProps) => {
     }
   }, [column]);
 
-  const mutation = useAuthMutation(
-    () => ({
-      url: `${process.env.NEXT_PUBLIC_API_URL}/columns${column ? `/${column.id}` : ''}`,
-      method: column ? 'PATCH' : 'POST',
-      data: {
-        name,
-        color,
-        ...(column ? {} : { projectId }),
-      },
-    }),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: ['columns', projectId] });
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (name.trim()) {
+      try {
+        if (column) {
+          await updateColumn(column.id, name.trim(), color);
+        } else {
+          await createColumn(name.trim(), color);
+        }
         onClose();
         if (!column) {
           setName('');
           setColor('#E2E8F0');
         }
-      },
+      } catch (error) {
+        console.error('Erreur lors de la création/modification de la colonne:', error);
+      }
     }
-  );
+  };
 
   return (
     <form
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (name.trim()) {
-          mutation.mutate();
-        }
-      }}
+      onSubmit={handleSubmit}
       className="space-y-4"
     >
       <Input
@@ -79,12 +70,9 @@ const ColumnForm = ({ projectId, onClose, column }: ColumnFormProps) => {
         </Button>
         <Button
           type="submit"
-          disabled={!name.trim() || mutation.isPending}
+          disabled={!name.trim()}
         >
-          {mutation.isPending 
-            ? column ? 'Modification...' : 'Création...'
-            : column ? 'Modifier' : 'Créer'
-          }
+          {column ? 'Modifier' : 'Créer'}
         </Button>
       </div>
     </form>

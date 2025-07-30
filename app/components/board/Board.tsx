@@ -39,7 +39,6 @@ const Board = () => {
     endDrag, 
     moveColumn, 
     moveTask, 
-    projectId 
   } = useBoardActions();
 
   const users = members.map((member) => member.user);
@@ -168,7 +167,7 @@ const Board = () => {
             ))}
           </SortableContext>
           
-          <AddColumn projectId={projectId} />
+          <AddColumn />
         </div>
 
         <DragOverlay>
