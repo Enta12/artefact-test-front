@@ -234,11 +234,11 @@ export const useBoardActions = () => {
   const createColumnMutation = useAuthMutation<
     Column,
     Error,
-    { name: string; color?: string; position: number }
-  >(({ name, color, position }) => ({
+    { name: string; color?: string; position: number; projectId: number }
+  >(({ name, color, position, projectId }) => ({
     url: `${process.env.NEXT_PUBLIC_API_URL}/columns`,
     method: "POST",
-    data: { name, color, position },
+    data: { name, color, position, projectId },
   }));
 
   const updateColumnMutation = useAuthMutation<
@@ -324,6 +324,7 @@ export const useBoardActions = () => {
         name,
         color,
         position: columnPosition,
+        projectId: board.projectId,
       });
       board.addColumn(res);
       return res;
