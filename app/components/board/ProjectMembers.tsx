@@ -70,7 +70,7 @@ export const ProjectMembers = () => {
       setNewEmail("");
       setNewRole("MEMBER");
     } catch (err) {
-      console.error("Erreur ajout membre", err);
+      console.error("Error adding member", err);
     } finally {
       setIsAdding(false);
     }

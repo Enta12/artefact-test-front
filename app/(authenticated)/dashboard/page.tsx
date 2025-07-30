@@ -21,7 +21,7 @@ export default async function DashboardPage() {
       headers: { Cookie: `token=${token}` },
       cache: 'no-store',
     });
-    if (!res.ok) throw new Error('Erreur API');
+    if (!res.ok) throw new Error('API error');
     return res.json();
   }
 

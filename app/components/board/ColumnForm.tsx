@@ -39,7 +39,7 @@ const ColumnForm = ({ onClose, column }: ColumnFormProps) => {
           setColor('#E2E8F0');
         }
       } catch (error) {
-        console.error('Erreur lors de la création/modification de la colonne:', error);
+        console.error('Error creating/updating column:', error);
       }
     }
   };

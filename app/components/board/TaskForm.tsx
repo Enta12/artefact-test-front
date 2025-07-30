@@ -78,9 +78,8 @@ const TaskForm = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (formData.title.trim()) {
-      onSubmit(formData);
-    }
+    formData.title.trim()
+    onSubmit(formData);
     setFormData({
       title: '',
       description: '',
@@ -92,6 +91,7 @@ const TaskForm = ({
       selectedTags: [],
       assignedToId: undefined
     });
+    
   };
 
   const handleCreateTag = async (inputValue: string) => {

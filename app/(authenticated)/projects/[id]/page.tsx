@@ -17,30 +17,30 @@ export default async function ProjectPage({
     return null;
   }
 
-  async function fetchWithAuth(url: string) {
+  async function fetchWithAuth<T>(url: string): Promise<T> {
     const res = await fetch(url, {
       headers: { Cookie: `token=${token}` },
       cache: 'no-store',
     });
-    if (!res.ok) throw new Error('Erreur API');
-    return res.json();
+    if (!res.ok) throw new Error('API error');
+    return res.json() as Promise<T>;
   }
 
   const [project, columns, members, tags] = await Promise.all([
-    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`),
-    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/columns/project/${projectId}`),
-    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/members`),
-    fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/tags/project/${projectId}`),
+    fetchWithAuth<Project>(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}`),
+    fetchWithAuth<Column[]>(`${process.env.NEXT_PUBLIC_API_URL}/columns/project/${projectId}`),
+    fetchWithAuth<Member[]>(`${process.env.NEXT_PUBLIC_API_URL}/projects/${projectId}/members`),
+    fetchWithAuth<Tag[]>(`${process.env.NEXT_PUBLIC_API_URL}/tags/project/${projectId}`),
   ]);
 
   console.log(members);
 
   return (
     <ProjectPageClient
-      project={project as Project}
-      columns={columns as Column[]}
-      members={members as Member[]}
-      tags={tags as Tag[]}
+      project={project}
+      columns={columns}
+      members={members}
+      tags={tags}
     />
   );
 } 

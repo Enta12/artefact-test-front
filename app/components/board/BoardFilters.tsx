@@ -140,9 +140,11 @@ const BoardFilters = ({ filters, onFiltersChange }: BoardFiltersProps) => {
         ref={buttonRef}
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "mb-4 inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg",
-          "text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none",
-          "focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          "mb-4 inline-flex items-center px-4 py-2 rounded-lg",
+          "text-sm font-medium text-gray-700 bg-white cursor-pointer hover:bg-blue-50",
+          {
+            "ring-2 ring-blue-500": isOpen
+          }
         )}
       >
         <FiFilter className={cn("h-5 w-5 mr-2")} />

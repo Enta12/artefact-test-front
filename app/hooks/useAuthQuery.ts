@@ -25,7 +25,7 @@ export function useAuthQuery<T>(
 type MutationConfig = {
   url: string;
   method: 'POST' | 'PUT' | 'PATCH' | 'DELETE';
-  data?: unknown; //use TData
+  data?: unknown; //TODO: use TData
 };
 
 export function useAuthMutation<TData = unknown, TError = Error, TVariables = void, TContext = unknown>(

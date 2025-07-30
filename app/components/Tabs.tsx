@@ -83,7 +83,6 @@ const Tabs = ({
         </nav>
       </div>
 
-      {/* Contenu des onglets */}
       <div className={cn('mt-6', contentClassName)}>
         {tabs.map((tab) => (
           activeTab === tab.id && (

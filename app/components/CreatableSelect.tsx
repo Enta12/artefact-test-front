@@ -1,4 +1,3 @@
-//TODO MAKE THIS: Advanced reusable select component with creatable options and custom styles
 'use client';
 
 import CreatableSelect from 'react-select/creatable';
@@ -41,6 +40,7 @@ const AdvancedSelect = <T,>({
       placeholder={placeholder}
       className={className}
       classNames={{
+        //TODO: use cn
         control: (state) => 
           `!border-purple-200 !rounded-xl !min-h-[48px] !shadow-sm hover:!border-purple-300 
            ${state.isFocused ? '!border-purple-500 !ring-2 !ring-purple-500' : ''}`,
