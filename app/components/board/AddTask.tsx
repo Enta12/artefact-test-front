@@ -47,7 +47,7 @@ const AddTask = ({ columnId, projectId }: AddTaskProps) => {
       <Modal
         ref={modalRef}
         title="Nouvelle tâche"
-        className="max-w-2xl!"
+        className="lg:max-w-3xl!"
       >
         <TaskForm
           projectId={projectId}

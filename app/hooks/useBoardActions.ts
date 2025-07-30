@@ -99,7 +99,7 @@ export const useBoardActions = () => {
     ({ taskId, targetColumnId, targetPosition }) => {
       return {
         url: `${process.env.NEXT_PUBLIC_API_URL}/tasks/${taskId}`,
-        method: 'PATCH',
+        method: "PATCH",
         data: { columnId: targetColumnId, position: targetPosition },
       };
     },
@@ -107,17 +107,24 @@ export const useBoardActions = () => {
       retry: 2,
       onSuccess: (_, variables) => {
         pendingMovesRef.current = pendingMovesRef.current.filter(
-          move => move.taskId !== variables.taskId || move.timestamp !== variables.timestamp
+          (move) =>
+            move.taskId !== variables.taskId ||
+            move.timestamp !== variables.timestamp
         );
       },
       onError: (error, variables) => {
-        console.error('❌ Task synchronization error:', variables.taskId, error);
-        
-        pendingMovesRef.current = pendingMovesRef.current.filter(
-          move => move.taskId !== variables.taskId || move.timestamp !== variables.timestamp
+        console.error(
+          "❌ Task synchronization error:",
+          variables.taskId,
+          error
         );
-  
-      }
+
+        pendingMovesRef.current = pendingMovesRef.current.filter(
+          (move) =>
+            move.taskId !== variables.taskId ||
+            move.timestamp !== variables.timestamp
+        );
+      },
     }
   );
 
@@ -179,30 +186,35 @@ export const useBoardActions = () => {
     [board, updateTaskMutation]
   );
 
-  const syncSingleTaskMove = useCallback(async (
-    taskId: number, 
-    sourceColumnId: number, 
-    targetColumnId: number, 
-    targetPosition: number
-  ) => {
-    const pendingMove: PendingMove = {
-      taskId,
-      sourceColumnId,
-      targetColumnId,
-      targetPosition,
-      timestamp: Date.now()
-    };
-    
-    pendingMovesRef.current.push(pendingMove);
-    
-    setTimeout(() => {
-      if (pendingMovesRef.current.some(m => 
-        m.taskId === taskId && m.timestamp === pendingMove.timestamp
-      )) {
-        updateTaskPosition.mutate(pendingMove);
-      }
-    }, 300);
-  }, [updateTaskPosition]);
+  const syncSingleTaskMove = useCallback(
+    async (
+      taskId: number,
+      sourceColumnId: number,
+      targetColumnId: number,
+      targetPosition: number
+    ) => {
+      const pendingMove: PendingMove = {
+        taskId,
+        sourceColumnId,
+        targetColumnId,
+        targetPosition,
+        timestamp: Date.now(),
+      };
+
+      pendingMovesRef.current.push(pendingMove);
+
+      setTimeout(() => {
+        if (
+          pendingMovesRef.current.some(
+            (m) => m.taskId === taskId && m.timestamp === pendingMove.timestamp
+          )
+        ) {
+          updateTaskPosition.mutate(pendingMove);
+        }
+      }, 300);
+    },
+    [updateTaskPosition]
+  );
 
   const moveTask = useCallback(
     (
@@ -217,11 +229,15 @@ export const useBoardActions = () => {
     [board, syncSingleTaskMove]
   );
 
-  const updateColumnPosition = useAuthMutation<void, Error, { columnId: number; position: number }>(
+  const updateColumnPosition = useAuthMutation<
+    void,
+    Error,
+    { columnId: number; position: number }
+  >(
     ({ columnId, position }) => {
       return {
         url: `${process.env.NEXT_PUBLIC_API_URL}/columns/${columnId}`,
-        method: 'PATCH',
+        method: "PATCH",
         data: { position },
       };
     },
@@ -260,51 +276,67 @@ export const useBoardActions = () => {
     method: "DELETE",
   }));
 
-  const syncColumnMove = useCallback((columnId: number, newPosition: number) => {
-    if (newPosition < 0) {
-      console.warn('❌ Invalid position for column:', columnId, 'position:', newPosition);
-      return;
-    }
-    
-    const pendingMove: PendingColumnMove = {
-      columnId,
-      newPosition,
-      timestamp: Date.now()
-    };
-    
-    pendingColumnMovesRef.current = pendingColumnMovesRef.current.filter(
-      move => move.columnId !== columnId
-    );
-    
-    pendingColumnMovesRef.current.push(pendingMove);
-    
-    if (columnSyncTimeoutRef.current) {
-      clearTimeout(columnSyncTimeoutRef.current);
-    }
-    
-    columnSyncTimeoutRef.current = setTimeout(() => {
-      const movesToProcess = [...pendingColumnMovesRef.current];
-      pendingColumnMovesRef.current = [];
-      
-      if (movesToProcess.length === 0) return;
-      
-      const processMovesSequentially = async () => {
-        for (const move of movesToProcess) {
-          try {
-            if (move.newPosition >= 0) {
-              await updateColumnPosition.mutateAsync({ columnId: move.columnId, position: move.newPosition });
-            } else {
-              console.warn('❌ Invalid position ignored:', move.columnId, 'position:', move.newPosition);
-            }
-          } catch (error) {
-            console.error('❌ Column synchronization error:', error);
-          }
-        }
+  const syncColumnMove = useCallback(
+    (columnId: number, newPosition: number) => {
+      if (newPosition < 0) {
+        console.warn(
+          "❌ Invalid position for column:",
+          columnId,
+          "position:",
+          newPosition
+        );
+        return;
+      }
+
+      const pendingMove: PendingColumnMove = {
+        columnId,
+        newPosition,
+        timestamp: Date.now(),
       };
-      
-      processMovesSequentially();
-    }, 800); 
-  }, [updateColumnPosition]);
+
+      pendingColumnMovesRef.current = pendingColumnMovesRef.current.filter(
+        (move) => move.columnId !== columnId
+      );
+
+      pendingColumnMovesRef.current.push(pendingMove);
+
+      if (columnSyncTimeoutRef.current) {
+        clearTimeout(columnSyncTimeoutRef.current);
+      }
+
+      columnSyncTimeoutRef.current = setTimeout(() => {
+        const movesToProcess = [...pendingColumnMovesRef.current];
+        pendingColumnMovesRef.current = [];
+
+        if (movesToProcess.length === 0) return;
+
+        const processMovesSequentially = async () => {
+          for (const move of movesToProcess) {
+            try {
+              if (move.newPosition >= 0) {
+                await updateColumnPosition.mutateAsync({
+                  columnId: move.columnId,
+                  position: move.newPosition,
+                });
+              } else {
+                console.warn(
+                  "❌ Invalid position ignored:",
+                  move.columnId,
+                  "position:",
+                  move.newPosition
+                );
+              }
+            } catch (error) {
+              console.error("❌ Column synchronization error:", error);
+            }
+          }
+        };
+
+        processMovesSequentially();
+      }, 800);
+    },
+    [updateColumnPosition]
+  );
 
   const moveColumn = useCallback(
     (from: number, to: number) => {
@@ -334,7 +366,11 @@ export const useBoardActions = () => {
 
   const updateColumn = useCallback(
     async (columnId: number, name: string, color: string) => {
-      const res = await updateColumnMutation.mutateAsync({ columnId, name, color });
+      const res = await updateColumnMutation.mutateAsync({
+        columnId,
+        name,
+        color,
+      });
       board.updateColumn(columnId, res);
       return res;
     },
@@ -355,7 +391,7 @@ export const useBoardActions = () => {
   const addTagMutation = useAuthMutation<
     Tag,
     Error,
-    { name: string; color: string }
+    { name: string; color: string; projectId: number }
   >((tag) => ({
     url: `${process.env.NEXT_PUBLIC_API_URL}/tags`,
     method: "POST",
@@ -364,7 +400,10 @@ export const useBoardActions = () => {
 
   const addTag = useCallback(
     async (tag: { name: string; color: string }) => {
-      const newTag = await addTagMutation.mutateAsync(tag);
+      const newTag = await addTagMutation.mutateAsync({
+        ...tag,
+        projectId: board.projectId,
+      });
       board.addTag(newTag);
       return newTag;
     },
