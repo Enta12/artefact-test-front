@@ -15,7 +15,7 @@ interface Credentials {
 type FormErrors = Partial<Record<keyof Credentials, string>>;
 
 export default function LoginForm() {
-  const { login } = useAuth({enabled: false});
+  const { login } = useAuth();
   const [credentials, setCredentials] = useState<Credentials>({
     email: '',
     password: '',

@@ -1,7 +1,10 @@
 'use client';
 
-import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { useRouter } from 'next/navigation';
+import { useAuthContext } from '../../context/useAuthContext';
+import { useAuthMutation } from './useAuthQuery';
+import { User } from '../types/auth';
 
 interface LoginCredentials {
   email: string;
@@ -17,25 +20,23 @@ interface RegisterCredentials {
 }
 
 
-export function useAuth(options: {enabled?: boolean} = {enabled: true}) {
+
+export function useAuth() {
   const router = useRouter();
   const queryClient = useQueryClient();
-  const fetchWithAuth = async (url: string, options: RequestInit = {}) => {
-    const response = await fetch(url, {
-      ...options,
+  const { user, setUser  } = useAuthContext();
+  
+  
+  const fetchCurrentUser = async (): Promise<User> => {
+    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`, {
       credentials: 'include',
-      headers: {
-        ...options.headers,
-        'Content-Type': 'application/json',
-      },
     });
-
-    if (response.status === 401) {
-      router.push('/auth');
-      throw new Error('Expired session');
+  
+    if (!response.ok) {
+      throw new Error(response.status === 401 ? 'Unauthorized' : 'Failed to fetch user data');
     }
-
-    return response;
+  
+    return response.json();
   };
 
   const login = useMutation({
@@ -52,9 +53,8 @@ export function useAuth(options: {enabled?: boolean} = {enabled: true}) {
       if (!response.ok) {
         throw new Error('Failed to login');
       }
-
-      const data = await response.json();
-      return data;
+      const user = await fetchCurrentUser();
+      setUser(user);
     },
     onSuccess: () => {
       router.push('/dashboard');
@@ -83,53 +83,34 @@ export function useAuth(options: {enabled?: boolean} = {enabled: true}) {
       if (!response.ok) {
         throw new Error('Failed to register');
       }
-
-      const data = await response.json();
-      return data;
+      const user = await fetchCurrentUser();
+      setUser(user);
     },
     onSuccess: () => {
       router.push('/dashboard');
     },
   });
 
-  const logout = async () => {
-    await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/logout`, {
+  const logout = useAuthMutation(
+    () => ({
+      url: `${process.env.NEXT_PUBLIC_API_URL}/auth/logout`,
       method: 'POST',
-      credentials: 'include',
-    });
-    queryClient.clear();
-    router.push('/auth');
-  };
+    }),
+    {
+      onSuccess: () => {
+        queryClient.clear();
+        router.push('/auth');
+        setUser(null);
+      },
+    }
+  );
 
-  const { data: user, isLoading: isLoadingUser } = useQuery({
-    queryKey: ['user'],
-    queryFn: async () => {
-      try {
-        const response = await fetchWithAuth(`${process.env.NEXT_PUBLIC_API_URL}/auth/me`);
-        if (!response.ok) {
-          if (response.status === 401) {
-            return null;
-          }
-          throw new Error('Failed to fetch user');
-        }
 
-        const userData = await response.json();
-        return userData;
-      } catch (error) {
-        console.error('Error fetching user:', error);
-        return null;
-      }
-    },
-    enabled: options.enabled,
-  });
 
   return {
     user,
-    isLoadingUser,
     login,
     register,
-    logout,
-    isAuthenticated: !!user,
-    fetchWithAuth,
+    logout: logout.mutate
   };
 } 

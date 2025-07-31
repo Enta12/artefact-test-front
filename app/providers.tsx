@@ -2,8 +2,10 @@
 
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { useState } from 'react';
+import { AuthProvider } from '../context/AuthContext';
+import { User } from './types/auth';
 
-export default function Providers({ children }: { children: React.ReactNode }) {
+export default function Providers({ children, initialUser }: { children: React.ReactNode, initialUser: User | null }) {
   const [queryClient] = useState(() => new QueryClient({
     defaultOptions: {
       queries: {
@@ -14,8 +16,10 @@ export default function Providers({ children }: { children: React.ReactNode }) {
   }));
 
   return (
-    <QueryClientProvider client={queryClient}>
-      {children}
-    </QueryClientProvider>
+    <AuthProvider initialUser={initialUser}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+      </QueryClientProvider>
+    </AuthProvider>
   );
 } 

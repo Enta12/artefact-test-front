@@ -3,11 +3,12 @@
 import { useSortable, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { useDroppable } from '@dnd-kit/core';
 import { CSS } from '@dnd-kit/utilities';
-import type { Column as ColumnType, Task, Tag, User } from '../../types/board';
+import type { Column as ColumnType, Task, Tag } from '../../types/board';
 import TaskCard from './TaskCard';
 import AddTask from './AddTask';
 import ColumnMenu from './ColumnMenu';
 import cn from 'classnames';
+import { User } from '../../types/auth';
 
 interface ColumnProps {
   column: ColumnType;

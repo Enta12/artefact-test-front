@@ -4,10 +4,10 @@ import { useRef, useState } from 'react';
 import Modal, { ModalRef } from '../Modal';
 import TaskForm from './TaskForm';
 import { FiPlus } from 'react-icons/fi';
-import { Column, User, Tag } from '../../types/board';
+import { Column, Tag } from '../../types/board';
 import { TaskFormData } from '@/app/types/task';
 import { useBoardActions } from '@/app/hooks/useBoardActions';
-
+import { User } from '@/app/types/auth';
 interface AddTaskProps {
   columnId: number;
   projectId: number;

@@ -13,6 +13,7 @@ interface AppLayoutProps {
 export default function AppLayout({ title, children, className }: AppLayoutProps) {
   const { logout, user } = useAuth();
 
+  //TODO: resolve logout type
   return (
     <div className="space-y-8 min-h-screen">
       <div className="fixed top-0 left-0 right-0 z-10 flex justify-between items-center mb-6 bg-gray-100 p-4 shadow-sm">
@@ -22,7 +23,7 @@ export default function AppLayout({ title, children, className }: AppLayoutProps
             {user?.name && <span className="text-sm text-gray-500">
                 Bienvenue, {user.name}
             </span>}
-            <Button variant="danger" onClick={logout}>
+            <Button variant="danger" onClick={() => logout()}>
                 Se déconnecter
             </Button>
         </div>

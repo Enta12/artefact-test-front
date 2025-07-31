@@ -1,3 +1,5 @@
+import { User } from "./auth";
+
 export interface Tag {
   id: number;
   name: string;
@@ -10,11 +12,7 @@ export interface Tag {
 
 export type MinimalTag = Pick<Tag, 'id' | 'name' | 'color'>;
 
-export interface User {
-  id: number;
-  name?: string;
-  email: string;
-}
+
 
 export interface Task {
   id: number;

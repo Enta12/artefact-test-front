@@ -13,7 +13,7 @@ export default async function DashboardPage() {
   const token = cookieStore.get('token')?.value;
 
   if (!token) {
-    redirect('/login');
+    redirect('/auth');
   }
 
   async function fetchWithAuth(url: string) {
